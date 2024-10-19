@@ -3,14 +3,15 @@
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use App\RoadRunnerMessenger\LoggerReporter;
+use App\RoadRunnerMessenger\RoadRunnerJobWorker;
 use App\RoadRunnerMessenger\Transport\RoadRunnerTransportFactory;
-use Psr\Log\LoggerInterface;
 use Spiral\Goridge\RPC\RPC;
 use Spiral\Messenger\Sender\RoadRunnerSender;
 use Spiral\Messenger\Serializer\BodyContext;
 use Spiral\Messenger\Serializer\HeaderContext;
 use Spiral\Messenger\Serializer\Serializer;
 use Spiral\Messenger\Serializer\StampSerializer;
+use Spiral\RoadRunner\Jobs\Consumer;
 use Spiral\RoadRunner\Jobs\Jobs;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -40,7 +41,7 @@ return static function (ContainerConfigurator $container) {
         ->arg(0, service('rr.rpc'));
 
     $services->set('rr.reporter', LoggerReporter::class)
-        ->arg(0, service(LoggerInterface::class)->nullOnInvalid());
+        ->arg(0, service('logger')->ignoreOnInvalid());
 
     $services->set('rr.body-context', BodyContext::class)
         ->arg(0, 'json');
@@ -68,4 +69,15 @@ return static function (ContainerConfigurator $container) {
     $services->set(RoadRunnerTransportFactory::class)
         ->arg(0, service('rr.sender'))
         ->tag('messenger.transport_factory');
+
+    $services->set('rr.consumer', Consumer::class);
+
+    $services->set(RoadRunnerJobWorker::class)
+        ->arg(0, service('rr.consumer'))
+        ->arg(1, service('rr.serializer'))
+        ->arg(2, service('rr.stamp-serializer'))
+        ->arg(3, service('messenger.routable_message_bus'))
+        ->arg(4, service('rr.reporter'))
+        ->tag('console.command')
+    ;
 };

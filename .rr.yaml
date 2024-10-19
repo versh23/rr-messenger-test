@@ -4,7 +4,7 @@ rpc:
     listen: tcp://127.0.0.1:6001
 
 server:
-    command: "php consumer.php"
+    command: "php ./bin/console rr-messenger:worker"
     relay: pipes
 
 amqp:

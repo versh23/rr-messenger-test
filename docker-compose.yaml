@@ -11,3 +11,7 @@ services:
         image: rabbitmq:management
         ports:
             - '15672:15672'
+    buggregator:
+        image: ghcr.io/buggregator/server:latest
+        ports:
+            -   '8001:8000'

@@ -37,7 +37,10 @@ final class RoadRunnerJobWorker extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        trap('start');
         while ($task = $this->consumer->waitTask()) {
+            trap($task);
+
             // TODO: use mapper for headers
             $headers = [];
             foreach ($task->getHeaders() as $key => $value) {
@@ -53,14 +56,20 @@ final class RoadRunnerJobWorker extends Command
 
             try {
                 $this->handleMessage($task, $envelope);
+                trap('handled', $envelope);
             } catch (\Throwable $e) {
                 $this->reporter->report($e);
                 $task->nack($e);
+                trap('error', $e);
             }
+
+            trap('tick');
 
             // TODO: reset services
             // $finalizer->finalize(terminate: false);
         }
+
+        trap('stop');
 
         return Command::SUCCESS;
     }
