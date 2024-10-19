@@ -11,12 +11,15 @@ amqp:
     addr: amqp://guest:guest@rabbitmq:5672
 
 jobs:
+    pool:
+        num_workers: 1
+        debug: true
     consume: [ "test" ]
     pipelines:
         test:
             driver: amqp
             config:
-                prefetch: 10
+                prefetch: 1
                 consume_all: true
                 durable: true
                 exchange_durable: true
