@@ -1,0 +1,31 @@
+version: "3"
+
+rpc:
+    listen: tcp://127.0.0.1:6001
+
+server:
+    command: "php consumer.php"
+    relay: pipes
+
+amqp:
+    addr: amqp://guest:guest@rabbitmq:5672
+
+jobs:
+    consume: [ "test" ]
+    pipelines:
+        test:
+            driver: amqp
+            config:
+                prefetch: 10
+                consume_all: true
+                durable: true
+                exchange_durable: true
+                queue: test-queue
+                exchange: test-exchange
+                exchange_type: direct
+                routing_key: test
+                requeue_on_fail: true
+
+logs:
+    level: debug
+    mode: development

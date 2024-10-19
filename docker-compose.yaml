@@ -1,0 +1,13 @@
+services:
+    app:
+        volumes:
+            - './:/app'
+        build:
+            dockerfile: Dockerfile
+        ports:
+            -   '8080:8080'
+        command: 'rr serve -d -c .rr.yaml'
+    rabbitmq:
+        image: rabbitmq:management
+        ports:
+            - '15672:15672'
